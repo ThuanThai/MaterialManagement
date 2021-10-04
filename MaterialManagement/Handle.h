@@ -35,6 +35,8 @@ void sDelete(StaffList& sList);
 
 //================ Edit Staff ==================
 void sEdit(StaffList& sList);
+//=========== BILL===================
+void EstablishBill(StaffList& sList);
 // ====================================================
 
 void Menu() {
@@ -59,6 +61,7 @@ void Menu() {
 		cout << "6: Display Staff\n";
 		cout << "7: Delete Staff\n";
 		cout << "8: Edit Staff\n";
+		cout << "9: Create Bill\n";
 		cout << "0: Exit\n";
 
 		cin >> choice;
@@ -120,6 +123,9 @@ void Menu() {
 
 		case 8:
 			sEdit(sList);
+			break;
+		case 9:
+			EstablishBill(sList);
 			break;
 		case 0:
 			flag = false;
@@ -462,5 +468,111 @@ void sEdit(StaffList& sList) {
 	system("pause");
 }
 
+
+//===================== BILL-FUCTION ===================
+Staff* bFind(Staff* p, int id) {
+	if (p != NULL) {
+		if (p->sID == id) {
+			return p;
+		}
+		else if (p->sID < id) {
+			bFind(p->pRight, id);
+		}
+		else if (p->sID > id) {
+			bFind(p->pLeft, id);
+		}
+	}
+	else {
+		return NULL;
+	}	
+}
+
+Bill* NewBIll() {
+	Bill* bill = new Bill;
+	bill->pNext = NULL;
+	return bill;
+}
+
+bool checkDublicate_Bill(Bill* pHead, string id) {
+	for (Bill* k = pHead; k != NULL; k = k->pNext) {
+		if (k->bID == id) {
+			return true;
+		}
+	}
+	return false;
+}
+
+string create_bId(Bill* bill) {
+	string bID = "BL0000";
+	do {
+		for (int i = 2; i < bID.length(); i++) {
+			bID[i] = rand() % (57 - 48 + 1) + 48;
+		}
+	} while (checkDublicate_Bill(bill, bID));
+
+	return bID;
+}
+
+void addBill(Bill* pHead, Bill* p) {
+	if (pHead == NULL) {
+		pHead = p;
+	}
+	else {
+		for (Bill* bill = pHead; bill != NULL; bill = bill->pNext) {
+			if (bill->pNext == NULL) {
+				bill->pNext = p;
+			}
+		}
+	}
+}
+
+void EstablishBill(StaffList& sList) {
+	int id;
+	cout << "Enter Staff ID: "; 
+	cin >> id;
+
+	Staff* staff = bFind(sList.tree, id);
+
+	if (staff == NULL) {
+		cout << "Invalid ID!!!" << endl;
+	}
+	else {
+		Bill* bill = NewBIll();
+		bool flag = true;
+		while (flag) {
+			cout << "Select type of Bill\n";
+			cout << "1: imported invoice\n";
+			cout << "2: exported invoice\n";
+			int choice;
+			cin >> choice;
+			switch (choice)
+			{
+			case 1:
+				cout << "Type of Bill: imported\n";
+				bill->type = 'I';
+				flag = false;
+				break;
+
+			case 2: 
+				cout << "Type of Bill: exported\n";
+				bill->type = 'E';
+				flag = false;
+				break;
+			default:
+				cout << "Wrong choice!!!!\n";
+				continue;
+			}
+		}
+		bill->bID = create_bId(staff->bList.pHead);
+		cin.ignore();
+		cout << "enter date added: \n"; getline(cin, bill->Date);
+		addBill(staff->bList.pHead, bill);
+		staff->bList.count++;
+		cout << "Success creating Bill!!!\n";
+		system("pause");
+		cout << "Invoice: " << bill->type << " Bill ID: " << bill->bID << " Date: " << bill->Date << endl;
+	}
+	system("pause");
+}
 
 

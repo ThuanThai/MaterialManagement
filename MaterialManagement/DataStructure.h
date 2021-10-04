@@ -32,7 +32,7 @@ struct sBillList {
 };
 
 struct Bill {
-	int bID;
+	string bID;
 	string Date;
 	char type;
 	sBillList sbList;
