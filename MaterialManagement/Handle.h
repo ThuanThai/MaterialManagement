@@ -32,6 +32,9 @@ void Free(Staff* p[], int count);
 void sDelete(StaffList& sList);
 //============== STAFFDISPLAY ============
 void sDelete(StaffList& sList);
+
+//================ Edit Staff ==================
+void sEdit(StaffList& sList);
 // ====================================================
 
 void Menu() {
@@ -55,6 +58,7 @@ void Menu() {
 		cout << "5: Add Staff\n";
 		cout << "6: Display Staff\n";
 		cout << "7: Delete Staff\n";
+		cout << "8: Edit Staff\n";
 		cout << "0: Exit\n";
 
 		cin >> choice;
@@ -112,6 +116,10 @@ void Menu() {
 
 		case 7:
 			sDelete(sList);
+			break;
+
+		case 8:
+			sEdit(sList);
 			break;
 		case 0:
 			flag = false;
@@ -403,6 +411,56 @@ void sDelete(StaffList& sList) {
 	system("pause");
 }
 
+//================ Edit Staff ==================
+
+void EditStaff(Staff* p, int id) {
+	if (p != NULL) {
+		if (p->sID == id) {
+			cin.ignore();
+			cout << "First name: \n"; getline(cin, p->FirstName); standardlize(p->FirstName);
+			cout << "Last name: \n"; getline(cin, p->LastName); standardlize(p->LastName);
+			cout << "Gender: \n"; getline(cin, p->gender); standardlize(p->gender);
+		}
+		else if (p->sID > id) {
+			EditStaff(p->pLeft, id);
+		}
+		else if (p->sID < id) {
+			EditStaff(p->pRight, id);
+		}
+	}
+}
+
+void Find(Staff* p, int id) {
+	if (p != NULL) {
+		if (p->sID == id) {
+			cout << "\n" << p->sID << endl;
+			cout << p->FirstName << endl;
+			cout << p->LastName << endl;
+			cout << p->gender << endl;
+		}
+		else if (p->sID < id) {
+			Find(p->pRight, id);
+		}
+		else if (p->sID > id) {
+			Find(p->pLeft, id);
+		}
+	}
+}
+
+void sEdit(StaffList& sList) {
+	int id;
+	cout << "Enter staff ID: \n";
+	cin >> id;
+	if (checkDuplicate_staff(sList.tree, id)) {
+		Find(sList.tree, id);
+		EditStaff(sList.tree, id);
+		cout << "Edit Success" << endl;
+	}
+	else {
+		cout << "ID is invalid!!!\n";
+	}
+	system("pause");
+}
 
 
 
