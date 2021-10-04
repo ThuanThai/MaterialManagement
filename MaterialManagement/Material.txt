@@ -1,0 +1,4 @@
+MA0012,Fridge,pc,12,0
+MA4892,Speaker,pc,28,0
+MA0934,Steel,tonn,5,0
+MA9048,Plastic,kg,489,0
