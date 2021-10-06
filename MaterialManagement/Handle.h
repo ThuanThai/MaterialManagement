@@ -1,6 +1,5 @@
 #pragma once
 #include "InputStream.h"
-
 // =================ADD FUNCTION==================
 
 string create_mId(MatList matlist);
@@ -36,7 +35,9 @@ void sDelete(StaffList& sList);
 //================ Edit Staff ==================
 void sEdit(StaffList& sList);
 //=========== BILL===================
-void EstablishBill(StaffList& sList);
+void createSbList(sBillList& sbill, MatList& mList);
+void EstablishBill(StaffList& sList, MatList& mList);
+void showBill(StaffList sList);
 // ====================================================
 
 void Menu() {
@@ -62,6 +63,7 @@ void Menu() {
 		cout << "7: Delete Staff\n";
 		cout << "8: Edit Staff\n";
 		cout << "9: Create Bill\n";
+		cout << "10: show Bill\n";
 		cout << "0: Exit\n";
 
 		cin >> choice;
@@ -125,7 +127,10 @@ void Menu() {
 			sEdit(sList);
 			break;
 		case 9:
-			EstablishBill(sList);
+			EstablishBill(sList, matList);
+			break;
+		case 10:
+			showBill(sList);
 			break;
 		case 0:
 			flag = false;
@@ -513,7 +518,7 @@ string create_bId(Bill* bill) {
 	return bID;
 }
 
-void addBill(Bill* pHead, Bill* p) {
+void addBill(Bill*& pHead, Bill* p) {
 	if (pHead == NULL) {
 		pHead = p;
 	}
@@ -526,11 +531,85 @@ void addBill(Bill* pHead, Bill* p) {
 	}
 }
 
-void EstablishBill(StaffList& sList) {
+//void updateQuantity(Bill* bill, MatList& mList, int i) {
+//	if (bill->type == 'I') {
+//		int quantity = bill->sbList.arr[bill->sbList.count].quanitity;
+//		cin >> quantity;
+//		mList.list[i]->remain += quantity;
+//	}
+//	else if (bill->type == 'E') {
+//		bool flag = true;
+//		while (flag) {
+//			int quantity = bill->sbList.arr[bill->sbList.count].quanitity;
+//			cin >> quantity;
+//			if (mList.list[i]->remain >= quantity) {
+//				mList.list[i]->remain -= quantity;
+//				break;
+//			}
+//			else {
+//				cout << "The quantity in stock is not enough!!!\n";
+//				cout << "The quantity in stock of this material: " << mList.list[i]->remain << endl;
+//				cout << "please choose another quantity!\n";
+//				system("pause");
+//				continue;
+//			}
+//		}
+//	}
+//}
+
+void createSbList(sBillList& sbill, MatList& mList) {
+	string id;
+	cout << "Enter Material ID: " << endl;
+	cin >> id;
+	Id_standardlize(id);
+	if (checkDuplicate(id, mList) >= 0) {
+		int i = checkDelete(id, mList);
+		bool flag = true;
+		int choice;
+		sBill* p = new sBill;
+		cout << "Enter quantity: \n";
+		cin >> p->quanitity;
+		cout << "Enter price: \n";
+		cin >> p->price;
+		cout << "Enter VAT: \n";
+		cin >> p->VAT;
+
+		while (flag) {
+			system("cls");
+			cout << "Enter the state of material\n";
+			cout << "1: sold good\n";
+			cout << "2: returned good\n";
+			cin >> choice;
+			switch (choice)
+			{
+			case 1:
+				p->state = 1;
+				flag = false;
+				break;
+
+			case 2:
+				p->state = 0;
+				flag = false;
+				break;
+
+			default:
+				continue;
+			}
+		}
+		sbill.arr[sbill.count] = p;
+		sbill.count++;
+		cout << "Success update specified bill\n";
+	}
+	else {
+		cout << "Invalid material ID!!!\n";
+
+	}
+}
+
+void EstablishBill(StaffList& sList, MatList& mList) {
 	int id;
 	cout << "Enter Staff ID: "; 
 	cin >> id;
-
 	Staff* staff = bFind(sList.tree, id);
 
 	if (staff == NULL) {
@@ -540,6 +619,7 @@ void EstablishBill(StaffList& sList) {
 		Bill* bill = NewBIll();
 		bool flag = true;
 		while (flag) {
+			system("cls");
 			cout << "Select type of Bill\n";
 			cout << "1: imported invoice\n";
 			cout << "2: exported invoice\n";
@@ -567,12 +647,51 @@ void EstablishBill(StaffList& sList) {
 		cin.ignore();
 		cout << "enter date added: \n"; getline(cin, bill->Date);
 		addBill(staff->bList.pHead, bill);
+
 		staff->bList.count++;
 		cout << "Success creating Bill!!!\n";
 		system("pause");
-		cout << "Invoice: " << bill->type << " Bill ID: " << bill->bID << " Date: " << bill->Date << endl;
+
+		cout << "Invoice: " << bill->type << "\nBill ID: " << bill->bID << "\nDate: " << bill->Date << endl;
+		cout << "\n";
+
+		Mdisplay(mList);
+		createSbList(bill->sbList ,mList);
 	}
 	system("pause");
 }
+
+void showSBill(sBillList sbill) {
+	for (int i = 0; i < sbill.count; i++) {
+		cout << "ID: " << sbill.arr[i]->mID<< endl;
+		cout << "Price" << sbill.arr[i]->price << endl;
+		cout << "Quantity: " << sbill.arr[i]->quanitity << endl;
+		cout << "VAT: " << sbill.arr[i]->VAT << endl;
+		cout << "State: " << (sbill.arr[i]->state ? "sold goods" : "return goods") << endl;
+	}
+}
+
+void showBill(StaffList sList) {
+	int id;
+	cout << "Enter Staff ID: ";
+	cin >> id;
+	Staff* staff = bFind(sList.tree, id);
+	if (staff == NULL) {
+		cout << "Invalid ID!!!" << endl;
+	}
+	else {
+		for (Bill* p = staff->bList.pHead; p != NULL; p = p->pNext) {
+			cout << "Bill ID: " << p->bID << endl;
+			cout << "Date: " << p->Date << endl;
+			cout << "Type: " << p->type << endl;
+			showSBill(p->sbList);
+		}
+	}
+	system("pause");
+}
+
+
+
+
 
 

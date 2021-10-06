@@ -27,7 +27,7 @@ struct sBill {
 };
 
 struct sBillList {
-	sBill sbill[20];
+	sBill *arr[20];
 	int count = 0;
 };
 
