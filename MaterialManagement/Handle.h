@@ -531,44 +531,44 @@ void addBill(Bill*& pHead, Bill* p) {
 	}
 }
 
-//void updateQuantity(Bill* bill, MatList& mList, int i) {
-//	if (bill->type == 'I') {
-//		int quantity = bill->sbList.arr[bill->sbList.count].quanitity;
-//		cin >> quantity;
-//		mList.list[i]->remain += quantity;
-//	}
-//	else if (bill->type == 'E') {
-//		bool flag = true;
-//		while (flag) {
-//			int quantity = bill->sbList.arr[bill->sbList.count].quanitity;
-//			cin >> quantity;
-//			if (mList.list[i]->remain >= quantity) {
-//				mList.list[i]->remain -= quantity;
-//				break;
-//			}
-//			else {
-//				cout << "The quantity in stock is not enough!!!\n";
-//				cout << "The quantity in stock of this material: " << mList.list[i]->remain << endl;
-//				cout << "please choose another quantity!\n";
-//				system("pause");
-//				continue;
-//			}
-//		}
-//	}
-//}
+void updateQuantity(sBill*& p, MatList& mList, Bill* bill ,int i) {
+	if (bill->type == 'I') {
+		cin >> p->quanitity;
+		mList.list[i]->remain += p->quanitity;
+	}
+	else if (bill->type == 'E') {
+		bool flag = true;
+		while (flag) {
+			cin >> p->quanitity;
+			int temp = p->quanitity;
+			if (mList.list[i]->remain >= temp) {
+				mList.list[i]->remain -= temp;
+				break;
+			}
+			else {
+				cout << "The quantity in stock is not enough!!!\n";
+				cout << "The quantity in stock of this material: " << mList.list[i]->remain << endl;
+				cout << "please choose another quantity!\n";
+				system("pause");
+				continue;
+			}
+		}
+	}
+}
 
-void createSbList(sBillList& sbill, MatList& mList) {
+void createSbList(sBillList& sbill, Bill*& bill, MatList& mList) {
 	string id;
 	cout << "Enter Material ID: " << endl;
 	cin >> id;
 	Id_standardlize(id);
+
 	if (checkDuplicate(id, mList) >= 0) {
 		int i = checkDelete(id, mList);
 		bool flag = true;
 		int choice;
 		sBill* p = new sBill;
 		cout << "Enter quantity: \n";
-		cin >> p->quanitity;
+		updateQuantity(p, mList, bill, i);
 		cout << "Enter price: \n";
 		cin >> p->price;
 		cout << "Enter VAT: \n";
@@ -602,7 +602,6 @@ void createSbList(sBillList& sbill, MatList& mList) {
 	}
 	else {
 		cout << "Invalid material ID!!!\n";
-
 	}
 }
 
@@ -614,7 +613,7 @@ void EstablishBill(StaffList& sList, MatList& mList) {
 
 	if (staff == NULL) {
 		cout << "Invalid ID!!!" << endl;
-	}
+	} 
 	else {
 		Bill* bill = NewBIll();
 		bool flag = true;
@@ -623,8 +622,10 @@ void EstablishBill(StaffList& sList, MatList& mList) {
 			cout << "Select type of Bill\n";
 			cout << "1: imported invoice\n";
 			cout << "2: exported invoice\n";
+			
 			int choice;
 			cin >> choice;
+			
 			switch (choice)
 			{
 			case 1:
@@ -638,6 +639,7 @@ void EstablishBill(StaffList& sList, MatList& mList) {
 				bill->type = 'E';
 				flag = false;
 				break;
+
 			default:
 				cout << "Wrong choice!!!!\n";
 				continue;
@@ -645,10 +647,12 @@ void EstablishBill(StaffList& sList, MatList& mList) {
 		}
 		bill->bID = create_bId(staff->bList.pHead);
 		cin.ignore();
-		cout << "enter date added: \n"; getline(cin, bill->Date);
-		addBill(staff->bList.pHead, bill);
+		cout << "enter date added: \n"; 
+		getline(cin, bill->Date);
 
+		addBill(staff->bList.pHead, bill);
 		staff->bList.count++;
+
 		cout << "Success creating Bill!!!\n";
 		system("pause");
 
@@ -656,7 +660,7 @@ void EstablishBill(StaffList& sList, MatList& mList) {
 		cout << "\n";
 
 		Mdisplay(mList);
-		createSbList(bill->sbList ,mList);
+		createSbList(bill->sbList, bill, mList);
 	}
 	system("pause");
 }
